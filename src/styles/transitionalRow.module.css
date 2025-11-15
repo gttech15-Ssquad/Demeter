@@ -1,0 +1,89 @@
+/* TransactionRow.module.css */
+
+.container {
+  /* Mimicking the general dark background of the app */
+  background-color: #1c1c1e; /* A very dark grey for the component area */
+  padding: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.iconContainer {
+  /* Circular icon on the left */
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #f4511e; /* Specific Orange/Red color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Prevents shrinking */
+}
+
+.iconSvg {
+  /* The double-arrow symbol */
+  width: 20px;
+  height: 20px;
+  fill: white;
+}
+
+.detailsContainer {
+  /* Transaction ID and Type */
+  flex-grow: 1;
+  min-width: 0; /* Important for long text truncation */
+  line-height: 1.35;
+}
+
+.mainText {
+  /* Transaction ID */
+  font-size: 16px;
+  font-weight: 500;
+  color: #e0e0e0; /* Off-white for main text */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subText {
+  /* "Transfer" text */
+  font-size: 14px;
+  color: #a0a0a0; /* Muted grey for secondary text */
+}
+
+.amountContainer {
+  /* Amount and Destination */
+  text-align: right;
+  line-height: 1.35;
+  flex-shrink: 0; /* Prevents this section from shrinking */
+}
+
+.amountText {
+  /* The entire amount line */
+  font-size: 16px;
+  font-weight: 600;
+  color: #4caf50; /* Bright green for credit */
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+}
+
+.amountText .nairaSymbol {
+  /* Naira symbol styling to match the image */
+  font-size: 15px;
+  margin-right: 2px;
+}
+
+.amountText .decimal {
+  /* Smaller decimal part */
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.destinationText {
+  /* "To • 9676" text */
+  font-size: 14px;
+  color: #a0a0a0; /* Muted grey */
+}
