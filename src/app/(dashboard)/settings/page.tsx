@@ -13,8 +13,9 @@ import {
   TransactionList,
 } from "@/src/components/pages/transaction-history";
 import TransactionSearch from "@/src/components/shared/SearchFilter";
+import { CardSettingsList } from "@/src/components/pages/card-settings-screen";
 
-export default function ManageCards() {
+export default function CardSettings() {
   const router = useRouter();
 
   const [currentScreen, setCurrentScreen] = useState("card");
@@ -23,7 +24,7 @@ export default function ManageCards() {
 
   return (
     <div className="flex-1 text-white overflow-y-auto pb-0">
-      <div className="flex items-center justify-between px-5 py-3">
+      <div className="flex items-center justify-between px-5 pt-3">
         <Link href="/cards">
           {" "}
           <button className="p-1 cursor-pointer">
@@ -35,14 +36,9 @@ export default function ManageCards() {
         <div className="w-5"></div> */}
       </div>
 
-      <h2 className="px-5 text-2xl font-semibold">Transaction history</h2>
+      <h2 className="px-5 text-2xl font-semibold">Card Settings</h2>
 
-      <TransactionSearch
-        onSearch={(value) => console.log("debounced search:", value)}
-        onFilterChange={(filter) => console.log("filter:", filter)}
-      />
-
-      <TransactionList groups={trans.transactions_by_date} />
+      <CardSettingsList />
     </div>
   );
 }

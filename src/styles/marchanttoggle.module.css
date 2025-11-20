@@ -1,0 +1,26 @@
+/* Bigger Switch */
+.custom-switch {
+  width: 51px;
+  height: 31px;
+  position: relative;
+}
+
+.custom-switch > span {
+  /* background for OFF state */
+  background-color: #3a3a3a;
+}
+
+/* ON state background */
+.custom-switch[data-state="checked"] > span {
+  background-color: #22c55e; /* green or whatever */
+}
+
+/* Increase thumb size */
+.custom-switch > span::before {
+  width: 24px;
+  height: 24px;
+}
+
+.custom-switch[data-state="checked"] > span::before {
+  transform: translateX(20px);
+}

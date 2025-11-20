@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} bg-[#1A1A1A] antialiased mx-auto w-[393px] h-[100vh] overflow-hidden overflow-y-scroll`}
+        className={`${inter.variable} bg-[#1A1A1A] antialiased mx-auto w-[393px] h-screen overflow-hidden overflow-y-scroll`}
       >
         <div className="flex  flex-col bg-[#1A1A1A]">
           <StatusBar />

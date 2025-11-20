@@ -21,6 +21,7 @@ import {
 import TransactionRow from "../cards/transactional_row";
 import TransactionItem from "../cards/transactional_row";
 import Image from "next/image";
+import { ProfileNav } from "../dashboard/profileNav";
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
 }
@@ -31,11 +32,15 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       <div className="flex flex-col sticky top-0 items-center mt-2 mb-6">
         <div className="flex w-full flex-col">
           <div className="flex items-center gap-2">
-            <ProfileIcon className="" />
+            <ProfileIcon
+              className="cursor-pointer"
+              onClick={() => onNavigate("profile")}
+            />
+
             <span className="text-sm font-medium">Hello, Philip!</span>
           </div>
 
-          <div className="flex justify-between mt-2 h-[32px] items-centrer">
+          <div className="flex justify-between mt-2 h-8 items-centrer">
             <div className="text-xs text-gray-500 border-2 border-gray-800 rounded-sm py-1 px-2 ">
               Savings
             </div>
@@ -50,7 +55,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       </div>
       {/* Balance */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center  gap-2 mb-2">
           <span className="text-5xl font-bold">•••</span>
 
           <EyeIcon size={18} className="text-gray-500" />
@@ -61,16 +66,16 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       </div>
       {/* Quick Actions */}
       <div className="flex  gap-2 overflow-x-scroll  mb-8">
-        <button className="border-[#E15C42] whitespace-nowrap  h-[40px] border bg-[#392223] rounded-4xl  px-4 flex  gap-2 items-center justify-center hover:border-orange-500 transition-colors">
+        <button className="border-[#E15C42] whitespace-nowrap  h-10 border bg-[#392223] rounded-4xl  px-4 flex  gap-2 items-center justify-center hover:border-orange-500 transition-colors">
           <PlusCircleIcon size={20} className="text-orange-500 " />
           <span className="text-orange-500 text-md">Fund account</span>
         </button>
-        <button className="border-[#E15C42] whitespace-nowrap  h-[40px] border bg-[#392223] rounded-4xl  px-4 flex  gap-2 items-center justify-center hover:border-orange-500 transition-colors">
-          <TransferIcon className="text-orange-500 h-[16px] mt-1  w-[20px]" />
+        <button className="border-[#E15C42] whitespace-nowrap  h-10 border bg-[#392223] rounded-4xl  px-4 flex  gap-2 items-center justify-center hover:border-orange-500 transition-colors">
+          <TransferIcon className="text-orange-500 h-4 mt-1  w-5" />
           <span className="text-orange-500 text-md">Transfer</span>
         </button>
-        <button className="border-[#E15C42] whitespace-nowrap  h-[40px] border bg-[#392223] rounded-4xl  px-4 flex  gap-2 items-center justify-center hover:border-orange-500 transition-colors">
-          <AccountDetailsIcon className="text-orange-500 h-[20px]  w-[20px] " />
+        <button className="border-[#E15C42] whitespace-nowrap  h-10 border bg-[#392223] rounded-4xl  px-4 flex  gap-2 items-center justify-center hover:border-orange-500 transition-colors">
+          <AccountDetailsIcon className="text-orange-500 h-5  w-5 " />
           <span className="text-orange-500 text-md">Account details </span>
         </button>
       </div>

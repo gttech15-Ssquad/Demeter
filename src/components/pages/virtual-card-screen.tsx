@@ -1,130 +1,202 @@
 import React, { useState } from "react";
 import { ArrowLeftIcon, MoreHorizontalIcon } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { UserAddIcon } from "../icons/pack_1";
+import {
+  CardDesignIcon,
+  CardDetailsIcon,
+  CardMerchantIcon,
+  CardSettingsIcon,
+  CardTransactionsIcon,
+  CreditCardIcon,
+  FlashIcon,
+  LockIcon,
+  NewCardIcon,
+  StoreIcon,
+} from "../icons/fix-color_type";
+import MyVirtualCard, { CardBackground } from "../cards/mycard";
+import ConfirmPinDialog from "../shared/confirmPin";
+import CardDetailsDrawer from "../cards/cardDetailsDrawer";
+import { CardDetails } from "../cards/card-types";
 
 type VirtualCardScreenProps = {
   onNavigate: (screen: string) => void;
 };
 
+export const cardBackgrounds: CardBackground[] = [
+  {
+    type: "gradient",
+    value: "bg-gradient-to-br from-orange-500 via-yellow-500 to-red-500",
+  },
+  { type: "color", value: "#0f172a" },
+  { type: "image", value: "/images/card1.png" },
+];
+
+const mockCardDetails: CardDetails = {
+  cardNumber: "5594382937296482",
+  accountNumber: "0718259676",
+  expiryDate: "08/28",
+  cvv: "021",
+};
 export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
-  const [activeTab, setActiveTab] = useState<"virtual" | "physical">("virtual");
+  const [activeTab, setActiveTab] = useState<"new" | "virtual">("new");
+
+  const [showPin, setShowPin] = useState(false);
+  const [pendingAction, setPendingAction] = useState<() => void>(() => {});
+
+  const openPinFor = (action: () => void) => {
+    setPendingAction(() => action);
+    setShowPin(true);
+  };
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // const closePin = () => {
+  //   setShowPin(false);
+  // };
+
+  const features = [
+    { icon: FlashIcon, text: "Apply and activate instantly" },
+    { icon: CreditCardIcon, text: "Faster online payments" },
+    { icon: StoreIcon, text: "Works on all your favorite stores" },
+    { icon: LockIcon, text: "Heavily secure" },
+  ];
+
+  const handleTabClick = (tab: "new" | "virtual") => {
+    setActiveTab(tab);
+  };
+
+  if (activeTab === "new")
+    return (
+      <div className="flex-1 overflow-y-auto pb-2">
+        <div className=" w-full relative flex items-center justify-center px-5 py-3 ">
+          <div className="-mt-20 ml-12 ">
+            <Image
+              src="/images/createcard.png"
+              alt="Virtual Card Banner"
+              width={1000}
+              height={1000}
+            />
+          </div>
+        </div>
+
+        {/* Card Display */}
+
+        <div className="relative px-8 ">
+          <div className="">
+            <h2 className="text-white text-3xl font-bold leading-auto mr-2 ">
+              Get your instant virtual debit card
+            </h2>
+
+            <ul className="list-none mt-4 p-0 m-0">
+              {features.map((feature, index) => (
+                <CardFeature
+                  key={index}
+                  Icon={feature.icon}
+                  text={feature.text}
+                />
+              ))}
+            </ul>
+
+            <button
+              onClick={() => setActiveTab("virtual")}
+              className="w-full py-2 cursor-pointer text-white text-md font-semibold rounded-md transition duration-200 
+                   bg-red-500 hover:bg-red-600 "
+              style={{ backgroundColor: "#e5654a" }} // Applying the exact coral color
+            >
+              Create my virtual card
+            </button>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
-    <div className="flex-1 overflow-y-auto pb-16">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3">
-        <button onClick={() => onNavigate("home")} className="p-1">
-          <ArrowLeftIcon size={20} />
-        </button>
-        <div className="font-medium">GT VirtuPay</div>
-        <div className="w-5"></div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex border-b border-gray-800 px-5">
-        <button
-          className={`flex-1 py-3 text-sm font-medium relative ${
-            activeTab === "virtual" ? "text-white" : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("virtual")}
-        >
-          Virtual Card
-          {activeTab === "virtual" && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"></div>
-          )}
-        </button>
-
-        <button
-          className={`flex-1 py-3 text-sm font-medium relative ${
-            activeTab === "physical" ? "text-white" : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("physical")}
-        >
-          Physical Card
-          {activeTab === "physical" && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"></div>
-          )}
-        </button>
-      </div>
-
+    <div className="flex-1  overflow-x-hidden overflow-y-auto">
       {/* Card Display */}
       <div className="px-5 py-8">
-        <div className="relative h-52 rounded-xl overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-yellow-500 to-red-500">
-            <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/30 to-transparent"></div>
-          </div>
+        <MyVirtualCard
+          background={cardBackgrounds[1]}
+          cardHolder="Philip Toriola G "
+        />
 
-          <div className="absolute top-4 right-4 bg-orange-600 text-white text-xs px-2 py-1 rounded">
-            GTBank
-          </div>
-
-          <div className="absolute bottom-8 left-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-5 bg-yellow-400 rounded"></div>
-              <div className="w-8 h-5 bg-red-500 rounded-full"></div>
-            </div>
-            <div className="text-sm font-medium text-white">
-              My main virtual card
-            </div>
-          </div>
-
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-1">
-            <div className="w-1 h-1 bg-white rounded-full"></div>
-            <div className="w-1 h-1 bg-white rounded-full"></div>
-            <div className="w-1 h-1 bg-white rounded-full"></div>
-          </div>
+        <div className="text-sm font-medium flex justify-center text-white mt-5">
+          My main virtual card
         </div>
       </div>
 
       {/* Card Actions */}
-      <div className="px-5">
-        <div className="grid grid-cols-3 gap-4">
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mb-2">
-              <div className="w-6 h-6 bg-yellow-500 rounded"></div>
-            </div>
+      <div className="px-2 mx-4  bg-[#1E1F23] rounded-md border border-[#313139] pt-4 text-gray-400">
+        <div className="grid grid-cols-3 py-2  gap-4">
+          <div
+            onClick={() => openPinFor(() => setIsDrawerOpen(true))}
+            className="flex flex-col  items-center"
+          >
+            <CardDetailsIcon className="cursor-pointer" />
             <span className="text-xs text-center">Card Details</span>
           </div>
 
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mb-2">
-              <div className="w-6 h-6 bg-pink-500 rounded-full"></div>
+          <Link href="/settings">
+            <div className="flex flex-col items-center">
+              <CardSettingsIcon />
+              <span className="text-xs text-center">Card Settings</span>
             </div>
-            <span className="text-xs text-center">Card Settings</span>
+          </Link>
+
+          <div className="flex flex-col items-center">
+            <NewCardIcon />
+            <span className="text-xs text-center"> Create New Card</span>
           </div>
 
           <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mb-2">
-              <div className="w-6 h-6 bg-yellow-500 flex items-center justify-center text-black font-bold">
-                !
-              </div>
-            </div>
-            <span className="text-xs text-center">Manage Dispute</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mb-2">
-              <div className="w-6 h-6 bg-blue-500 rounded-full"></div>
-            </div>
+            <CardDesignIcon />
             <span className="text-xs text-center">Change Card Design</span>
           </div>
 
-          <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mb-2">
-              <div className="w-6 h-6 bg-purple-500 rounded"></div>
+          <Link href="/merchant">
+            <div className="flex flex-col items-center">
+              <CardMerchantIcon />
+              <span className="text-xs text-center">
+                Manage Online Merchant
+              </span>
             </div>
-            <span className="text-xs text-center">Manage Online Merchant</span>
-          </div>
+          </Link>
 
           <div className="flex flex-col items-center">
-            <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mb-2">
-              <div className="w-6 h-6 flex items-center justify-center">
-                <MoreHorizontalIcon size={16} />
-              </div>
-            </div>
+            <Link href={"/transactions?id=123456"}>
+              <CardTransactionsIcon />{" "}
+            </Link>
             <span className="text-xs text-center">Transactions</span>
           </div>
         </div>
       </div>
+
+      <ConfirmPinDialog
+        isOpen={showPin}
+        onClose={() => setShowPin(false)}
+        onSuccess={pendingAction}
+      />
+
+      <CardDetailsDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        details={mockCardDetails}
+      />
     </div>
   );
 }
+
+// CardFeature.tsx (Optional: a small component for the list items)
+interface CardFeatureProps {
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  text: string;
+}
+
+const CardFeature: React.FC<CardFeatureProps> = ({ Icon, text }) => (
+  <li className="flex items-center pb-4  text-white text-md">
+    <span className="text-2xl mr-4 w-8 shrink-0 text-center">
+      <Icon />
+    </span>
+    <span>{text}</span>
+  </li>
+);

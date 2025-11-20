@@ -1,11 +1,18 @@
 import React from "react";
 import {
-  HomeIcon,
-  ShoppingBagIcon,
-  BarChartIcon,
-  ArrowRightLeftIcon,
-  SettingsIcon,
-} from "lucide-react";
+  NavfinanceIcon,
+  NavHomeIcon,
+  NavPaymentIcon,
+  NavProductIcon,
+  NavTransferIcon,
+} from "../icons/fix-color_type";
+// import {
+//   HomeIcon,
+//   ShoppingBagIcon,
+//   BarChartIcon,
+//   ArrowRightLeftIcon,
+//   SettingsIcon,
+// } from "lucide-react";
 
 type BottomNavigationProps = {
   currentScreen: string;
@@ -24,27 +31,27 @@ export function BottomNavigation({
         }`}
         onClick={() => onNavigate("home")}
       >
-        <HomeIcon size={20} />
+        <NavHomeIcon />
         <span className="text-xs mt-1">Home</span>
       </button>
 
       <button className="flex flex-col items-center justify-center flex-1 text-gray-500">
-        <ShoppingBagIcon size={20} />
+        <NavProductIcon />
         <span className="text-xs mt-1">Products</span>
       </button>
 
       <button className="flex flex-col items-center justify-center flex-1 text-gray-500">
-        <BarChartIcon size={20} />
+        <NavPaymentIcon />
         <span className="text-xs mt-1">Payments</span>
       </button>
 
       <button className="flex flex-col items-center justify-center flex-1 text-gray-500">
-        <ArrowRightLeftIcon size={20} />
+        <NavTransferIcon />
         <span className="text-xs mt-1">Transfers</span>
       </button>
 
       <button className="flex flex-col items-center justify-center flex-1 text-gray-500">
-        <SettingsIcon size={20} />
+        <NavfinanceIcon />
         <span className="text-xs mt-1">Finance</span>
       </button>
     </div>

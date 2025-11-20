@@ -92,7 +92,7 @@ export default function TransactionItem({
 
           <div className="flex gap-2 flex-col">
             {/* Transaction ID */}
-            <p className="text-sm max-w-[192px] truncate">{transactionId}</p>
+            <p className="text-sm max-w-48 truncate">{transactionId}</p>
 
             {/* Transfer label */}
             <span className="text-xs text-gray-500">{type}</span>
