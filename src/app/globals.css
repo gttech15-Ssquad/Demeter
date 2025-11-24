@@ -44,6 +44,12 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scrollbar-width: none; /* Firefox */
+}
 body {
   max-width: 420px;
   height: 100vh;
