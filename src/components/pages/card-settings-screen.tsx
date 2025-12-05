@@ -25,6 +25,12 @@ import {
 } from "../icons/fix-color_type";
 import { ConfirmationDrawer } from "../shared/confirmationDraawer";
 import ConfirmPinDialog from "../shared/confirmPin";
+import { CardDetailsFull } from "../cards/cardDetailsDrawer";
+import { instance } from "@/src/utils";
+import { endpoints } from "@/src/config/endpoints";
+import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
+import { HttpError } from "@/src/types/common";
 
 interface Props {
   refetch?: () => void;
@@ -32,6 +38,8 @@ interface Props {
   edit?: string;
   children?: React.ReactNode;
   onNavigate?: (screen: string) => void;
+  cardDetails?: CardDetailsFull;
+  cardId: string;
 }
 
 export const CardSettingsList = ({
@@ -39,12 +47,51 @@ export const CardSettingsList = ({
   edit,
   refetch,
   onNavigate,
+  cardDetails,
+  cardId,
 }: Props) => {
   const router = useRouter();
   const [openForm, setOpenForm] = useState(false);
 
   const [showPin, setShowPin] = useState(false);
   const [pendingAction, setPendingAction] = useState<() => void>(() => {});
+
+  const { isPending, mutateAsync: freezeCardMutateAsync } = useMutation({
+    mutationFn: () => instance.post(`${endpoints().cards.freeze(cardId)}`),
+    mutationKey: ["v-cards_freeze"],
+    onSuccess: ({ data }) => {
+      router.push(`/cards`);
+      console.log(data);
+      const message = data.message;
+
+      toast.success(message);
+    },
+    onError: ({ response }: HttpError) => {
+      const { message } = response.data;
+      typeof message === "string"
+        ? toast.error(message)
+        : toast.error(message[0]);
+    },
+  });
+  const { isPending: deletepending, mutateAsync: deleteCardMutateAsync } =
+    useMutation({
+      mutationFn: () =>
+        instance.delete(`${endpoints().cards.cancelCard(cardId)}`),
+      mutationKey: ["v-cards_delete"],
+      onSuccess: ({ data }) => {
+        router.push(`/cards`);
+        console.log(data);
+        const message = data.message;
+
+        toast.success(message);
+      },
+      onError: ({ response }: HttpError) => {
+        const { message } = response.data;
+        typeof message === "string"
+          ? toast.error(message)
+          : toast.error(message[0]);
+      },
+    });
 
   const openPinFor = (action: () => void) => {
     setPendingAction(() => action);
@@ -57,7 +104,9 @@ export const CardSettingsList = ({
 
   const handleFreezeConfirm = () => {
     openPinFor(() => {
-      console.log("freeze card"), setShowFreezeConfirmation(false);
+      (console.log("freeze card", cardId),
+        freezeCardMutateAsync(),
+        setShowFreezeConfirmation(false));
     });
   };
 
@@ -67,7 +116,9 @@ export const CardSettingsList = ({
 
   const handleCancelConfirm = () => {
     openPinFor(() => {
-      console.log("cancel card"), setShowCancelConfirmation(false);
+      (console.log("cancel card"),
+        deleteCardMutateAsync(),
+        setShowCancelConfirmation(false));
     });
   };
 
@@ -83,7 +134,7 @@ export const CardSettingsList = ({
     <div className="mt-6 flex  w-full flex-col gap-6 overflow-y-scroll">
       <main className="px-5 pt-4 space-y-6">
         <DataItem
-          onClick={() => router.push("/settings/limits")}
+          onClick={() => router.push(`/settings/limits?card=${cardId}`)}
           Icon={LimitSettingsIcon}
           value=" Set transaction limits"
           label="set the transaction limits"

@@ -1,10 +1,13 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import {
   ChevronRightIcon,
   EyeIcon,
   PlusCircleIcon,
   ArrowRightIcon,
   MoreHorizontalIcon,
+  EyeOff,
 } from "lucide-react";
 import {
   AccountDetailsIcon,
@@ -22,10 +25,35 @@ import TransactionRow from "../cards/transactional_row";
 import TransactionItem from "../cards/transactional_row";
 import Image from "next/image";
 import { ProfileNav } from "../dashboard/profileNav";
+import { useUserStore } from "@/src/store/z-store/user";
+import { useQuery } from "@tanstack/react-query";
+import { endpoints } from "@/src/config/endpoints";
+import {
+  formatCurrency,
+  formatfordecimal,
+  formatWithoutCurrency,
+  instance,
+} from "@/src/utils";
+import { AccountProps } from "@/src/types/user";
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
 }
 export function HomeScreen({ onNavigate }: HomeScreenProps) {
+  const { signOut, user } = useUserStore();
+
+  const [showbalance, setShowBalance] = useState(false);
+  const {
+    data: dashaccount,
+    isFetching: isFetchingAcct,
+    refetch,
+  } = useQuery({
+    queryFn: () => instance.get(`${endpoints().accounts.getBalance}`),
+    queryKey: ["useraccount", user?.userId],
+  });
+
+  const dashAccount = dashaccount?.data as AccountProps;
+
+  console.log(dashAccount);
   return (
     <div className="flex-1 relative overflow-y-auto px-5 pb-16">
       {/* Header */}
@@ -37,15 +65,17 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
               onClick={() => onNavigate("profile")}
             />
 
-            <span className="text-sm font-medium">Hello, Philip!</span>
+            <span className="text-sm font-medium">
+              Hello, {user?.firstName}!
+            </span>
           </div>
 
           <div className="flex justify-between mt-2 h-8 items-centrer">
             <div className="text-xs text-gray-500 border-2 border-gray-800 rounded-sm py-1 px-2 ">
-              Savings
+              {dashAccount?.accountType}
             </div>
             <div className="text-xs flex gap-2  text-gray-500 border-2 border-gray-800 rounded-sm py-1 px-2">
-              0714850384{" "}
+              {dashAccount?.accountNumber}
               <span>
                 <CopyIcon className="text-[#E85D04]" />
               </span>
@@ -56,9 +86,32 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       {/* Balance */}
       <div className="mb-6">
         <div className="flex items-center  gap-2 mb-2">
-          <span className="text-5xl font-bold">•••</span>
+          {showbalance ? (
+            <div className="flex gap-2">
+              {" "}
+              <span className="text-sm mt-4 ">N</span>{" "}
+              <span className="text-3xl flex justify-center items-center font-bold">
+                {formatWithoutCurrency(dashAccount.balanceMinorUnits)}
+                {formatfordecimal(dashAccount.balanceMinorUnits)}
+              </span>
+            </div>
+          ) : (
+            <span className="text-5xl flex justify-center items-center font-bold">
+              {" "}
+              •••{" "}
+            </span>
+          )}
 
-          <EyeIcon size={18} className="text-gray-500" />
+          <span
+            className="flex justify-center mt-4 items-center"
+            onClick={() => setShowBalance(!showbalance)}
+          >
+            {showbalance ? (
+              <EyeOff size={18} className="text-gray-500" />
+            ) : (
+              <EyeIcon size={18} className="text-gray-500" />
+            )}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-400">Book Balance</span>
@@ -161,7 +214,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       {/* Investments */}
       <div>
         <h2 className="text-base font-semibold mb-4">Investments</h2>
-        <Image
+        <img
           alt="vault"
           src="/images/homevault.png"
           width={1000}

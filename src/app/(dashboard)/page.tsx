@@ -7,12 +7,15 @@ import { StatusBar } from "@/src/components/dashboard/stutus-bar-props";
 import { HomeScreen } from "@/src/components/pages/homedash";
 import { VirtualCardScreen } from "@/src/components/pages/virtual-card-screen";
 import { BottomNavigation } from "@/src/components/dashboard/bottom-nav";
+import { useUserStore } from "@/src/store/z-store/user";
 
 export default function Homedash() {
   const router = useRouter();
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
   const maxPinLength = 6;
+
+  const { signOut, user } = useUserStore();
 
   const handleNumberClick = (num: number) => {
     if (pin.length < maxPinLength) {

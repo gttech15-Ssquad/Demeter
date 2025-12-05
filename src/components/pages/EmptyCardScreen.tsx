@@ -14,7 +14,7 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
     <div className="flex-1 overflow-y-auto pb-16">
       <div className=" w-full relative flex items-center justify-center px-5 py-3 ">
         <div>
-          <Image
+          <img
             src="/images/createcard.png"
             alt="Virtual Card Banner"
             width={1000}

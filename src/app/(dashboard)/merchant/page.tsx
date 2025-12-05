@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeftIcon, User } from "lucide-react";
 import { StatusBar } from "@/src/components/dashboard/stutus-bar-props";
 import { HomeScreen } from "@/src/components/pages/homedash";
@@ -11,8 +11,11 @@ import { MerchantManagementScreen } from "@/src/components/pages/merchant-manage
 import Link from "next/link";
 import "@/src/styles/marchanttoggle.module.css";
 
-export default function MerchantScreen() {
+export default function Page() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const cardId = searchParams.get("card") || "";
 
   const [currentScreen, setCurrentScreen] = useState("home");
 
@@ -32,7 +35,10 @@ export default function MerchantScreen() {
 
       <h2 className="px-8 text-2xl font-semibold">Manage online merchant</h2>
       <div className="w-full  relative flex flex-col">
-        <MerchantManagementScreen onNavigate={setCurrentScreen} />
+        <MerchantManagementScreen
+          cardId={cardId}
+          onNavigate={setCurrentScreen}
+        />
       </div>
     </div>
   );

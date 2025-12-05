@@ -1,99 +1,65 @@
 "use client";
 
-// import { useState } from "react";
-// import { useRouter } from "next/navigation";
-// import { Eye, EyeOff } from "lucide-react";
-
-// export default function SignInPage() {
-//   const router = useRouter();
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-
-//   const handleSignIn = (e: React.FormEvent) => {
-//     e.preventDefault();
-//     // Simple mock authentication
-//     if (email && password) {
-//       router.push("/");
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-dark flex flex-col p-6">
-//       <div className="flex-1 flex flex-col justify-center">
-//         <div className="mb-12">
-//           <h1 className="text-4xl font-bold text-white mb-2">Welcome back</h1>
-//           <p className="text-gray-400">Sign in to continue</p>
-//         </div>
-
-//         <form onSubmit={handleSignIn} className="space-y-6">
-//           <div>
-//             <label className="block text-sm font-medium text-gray-300 mb-2">
-//               Email
-//             </label>
-//             <input
-//               type="email"
-//               value={email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               className="w-full px-4 py-3 bg-dark-card border border-dark-lighter rounded-xl text-white focus:outline-none focus:border-primary"
-//               placeholder="your@email.com"
-//               required
-//             />
-//           </div>
-
-//           <div>
-//             <label className="block text-sm font-medium text-gray-300 mb-2">
-//               Password
-//             </label>
-//             <div className="relative">
-//               <input
-//                 type={showPassword ? "text" : "password"}
-//                 value={password}
-//                 onChange={(e) => setPassword(e.target.value)}
-//                 className="w-full px-4 py-3 bg-dark-card border border-dark-lighter rounded-xl text-white focus:outline-none focus:border-primary"
-//                 placeholder="Enter password"
-//                 required
-//               />
-//               <button
-//                 type="button"
-//                 onClick={() => setShowPassword(!showPassword)}
-//                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-//               >
-//                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-//               </button>
-//             </div>
-//           </div>
-
-//           <button className="text-primary text-sm font-medium">
-//             Forgot password?
-//           </button>
-
-//           <button
-//             type="submit"
-//             className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-4 rounded-xl transition-colors"
-//           >
-//             Sign In
-//           </button>
-//         </form>
-
-//         <p className="text-center text-gray-400 mt-8">
-//           Don't have an account?{" "}
-//           <button className="text-primary font-medium">Sign Up</button>
-//         </p>
-//       </div>
-//     </div>
-//   );
-// }
-
-import { useState } from "react";
+import { useEffect, useState, FC } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
+import { useUserStore } from "@/src/store/z-store/user";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { toast } from "sonner";
+import { endpoints } from "@/src/config/endpoints";
+import { userProps } from "@/src/types/user";
+import { HttpError } from "@/src/types/common";
 
 export default function PinSignIn() {
   const router = useRouter();
+  const [savedPhoneNumber, setSavedPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
   const maxPinLength = 6;
+
+  const { signIn } = useUserStore();
+
+  const { isPending, mutateAsync } = useMutation({
+    mutationFn: (payload: { phoneNumber: string; pin: string }) =>
+      axios.post(`${endpoints().auth.login}`, payload),
+    mutationKey: ["signin"],
+    onSuccess: ({ data }) => {
+      console.log("check here form userprops");
+      console.log(data);
+      const user = data as userProps;
+      console.log(user);
+      localStorage.setItem("vw3dew32werwrdrtewrww33dfw", user.phoneNumber);
+      signIn(user);
+      setPin("");
+      router.push("/");
+      // toast.success(message);
+      router.push("/");
+    },
+    onError: ({ response }: HttpError) => {
+      setError(true);
+      setPin("");
+      const { message } = response.data;
+      typeof message === "string"
+        ? toast.error(message)
+        : toast.error(message[0]);
+    },
+  });
+
+  useEffect(() => {
+    const stored = localStorage.getItem("vw3dew32werwrdrtewrww33dfw");
+    if (stored) {
+      setSavedPhoneNumber(stored);
+      setPhoneNumber(stored);
+    }
+  }, []);
+
+  const handleLogin = async () => {
+    const payload = { phoneNumber, pin };
+
+    mutateAsync(payload);
+  };
 
   const handleNumberClick = (num: number) => {
     if (pin.length < maxPinLength) {
@@ -103,15 +69,20 @@ export default function PinSignIn() {
 
       // Auto-submit when PIN is complete
       if (newPin.length === maxPinLength) {
-        setTimeout(() => {
-          // Replace with real authentication
-          if (newPin === "123456") {
-            router.push("/"); // Navigate to dashboard
-          } else {
-            setError(true);
-            setPin("");
-          }
-        }, 300);
+        // setTimeout(() => {
+
+        //   // Replace with real authentication
+        //   if (newPin === "123456") {
+        //     router.push("/"); // Navigate to dashboard
+        //   } else {
+        //     setError(true);
+        //     setPin("");
+        //   }
+        // }, 300);
+
+        const payload = { phoneNumber, pin: newPin };
+
+        mutateAsync(payload);
       }
     }
   };
@@ -120,6 +91,16 @@ export default function PinSignIn() {
     setPin(pin.slice(0, -1));
     setError(false);
   };
+
+  if (!phoneNumber) {
+    return (
+      <PhoneNumberBlock
+        onNumberSubmit={(num) => {
+          setPhoneNumber(num);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] flex flex-col items-center justify-between p-6 pb-8">
@@ -156,7 +137,7 @@ export default function PinSignIn() {
                 i < pin.length
                   ? error
                     ? "bg-red-500"
-                    : "bg-white"
+                    : "bg-[#E15C42]"
                   : "bg-gray-600"
               }`}
             />
@@ -202,6 +183,66 @@ export default function PinSignIn() {
     </div>
   );
 }
+
+type PhoneNumberBlockProps = {
+  onNumberSubmit: (phone: string) => void;
+};
+
+export const PhoneNumberBlock: FC<PhoneNumberBlockProps> = ({
+  onNumberSubmit,
+}) => {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const isValid = /^0\d{10}$/.test(phoneNumber);
+
+  const handleContinue = () => {
+    if (!isValid) {
+      toast.error("Enter a valid phone number");
+      return;
+    }
+
+    setLoading(true);
+
+    setTimeout(() => {
+      onNumberSubmit(phoneNumber);
+    }, 400);
+  };
+
+  return (
+    <div className="w-full h-screen flex flex-col items-center px-6 mt-8">
+      <h1 className="text-white text-xl font-semibold mb-3">Welcome</h1>
+
+      <p className="text-gray-400 text-sm mb-10 text-center">
+        Enter your phone number to continue
+      </p>
+
+      <input
+        type="tel"
+        value={phoneNumber}
+        onChange={(e) => setPhoneNumber(e.target.value)}
+        placeholder="08012345678"
+        className="w-full bg-[#2a2a2a] text-white p-4 rounded-lg text-center 
+        tracking-widest text-lg outline-none border border-[#333]
+        focus:border-[#E5654A] transition"
+      />
+
+      <button
+        onClick={handleContinue}
+        disabled={!isValid || loading}
+        className="w-full mt-10 py-3 rounded-lg text-white font-medium text-base 
+        bg-[#E5654A] disabled:bg-[#E5654A]/40 disabled:text-gray-300 
+        transition active:scale-95"
+      >
+        {loading ? "Please wait..." : "Continue"}
+      </button>
+
+      <div className="flex justify-center mt-12">
+        <div className="w-32 h-1 bg-white/30 rounded-full"></div>
+      </div>
+    </div>
+  );
+};
 
 // import React, { useState } from 'react'
 // import { EyeIcon, EyeOffIcon } from 'lucide-react'
@@ -329,4 +370,89 @@ export default function PinSignIn() {
 //       </div>
 //     </div>
 //   )
+// }
+
+// import { useState } from "react";
+// import { useRouter } from "next/navigation";
+// import { Eye, EyeOff } from "lucide-react";
+
+// export default function SignInPage() {
+//   const router = useRouter();
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+
+//   const handleSignIn = (e: React.FormEvent) => {
+//     e.preventDefault();
+//     // Simple mock authentication
+//     if (email && password) {
+//       router.push("/");
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-dark flex flex-col p-6">
+//       <div className="flex-1 flex flex-col justify-center">
+//         <div className="mb-12">
+//           <h1 className="text-4xl font-bold text-white mb-2">Welcome back</h1>
+//           <p className="text-gray-400">Sign in to continue</p>
+//         </div>
+
+//         <form onSubmit={handleSignIn} className="space-y-6">
+//           <div>
+//             <label className="block text-sm font-medium text-gray-300 mb-2">
+//               Email
+//             </label>
+//             <input
+//               type="email"
+//               value={email}
+//               onChange={(e) => setEmail(e.target.value)}
+//               className="w-full px-4 py-3 bg-dark-card border border-dark-lighter rounded-xl text-white focus:outline-none focus:border-primary"
+//               placeholder="your@email.com"
+//               required
+//             />
+//           </div>
+
+//           <div>
+//             <label className="block text-sm font-medium text-gray-300 mb-2">
+//               Password
+//             </label>
+//             <div className="relative">
+//               <input
+//                 type={showPassword ? "text" : "password"}
+//                 value={password}
+//                 onChange={(e) => setPassword(e.target.value)}
+//                 className="w-full px-4 py-3 bg-dark-card border border-dark-lighter rounded-xl text-white focus:outline-none focus:border-primary"
+//                 placeholder="Enter password"
+//                 required
+//               />
+//               <button
+//                 type="button"
+//                 onClick={() => setShowPassword(!showPassword)}
+//                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+//               >
+//                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+//               </button>
+//             </div>
+//           </div>
+
+//           <button className="text-primary text-sm font-medium">
+//             Forgot password?
+//           </button>
+
+//           <button
+//             type="submit"
+//             className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-4 rounded-xl transition-colors"
+//           >
+//             Sign In
+//           </button>
+//         </form>
+
+//         <p className="text-center text-gray-400 mt-8">
+//           Don't have an account?{" "}
+//           <button className="text-primary font-medium">Sign Up</button>
+//         </p>
+//       </div>
+//     </div>
+//   );
 // }

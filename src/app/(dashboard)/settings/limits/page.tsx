@@ -3,14 +3,55 @@
 import { useState } from "react";
 import { ArrowLeft, Delete } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ConfirmPinDialog from "@/src/components/shared/confirmPin";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { instance } from "@/src/utils";
+import { endpoints } from "@/src/config/endpoints";
+import { CardDetailsFull } from "@/src/components/cards/cardDetailsDrawer";
+import { HttpError } from "@/src/types/common";
+import { toast } from "sonner";
 
-export default function SetTransactionLimit() {
-  const [rawAmount, setRawAmount] = useState("");
+export default function Page() {
+  const searchParams = useSearchParams();
+
+  const cardId = searchParams.get("card") ?? "";
+
+  const {
+    data: cardres,
+    isFetching: isFetchingDetails,
+    refetch,
+  } = useQuery({
+    queryFn: () =>
+      instance.get(`${endpoints().cards.getFullDetails(cardId || "")}`),
+    queryKey: ["v-cards-details", cardId],
+  });
+  const vCard = cardres?.data as CardDetailsFull | undefined;
+  const [rawAmount, setRawAmount] = useState(
+    `${vCard?.transactionLimitMinorUnits ?? 0}`
+  );
   const [showKeypad, setShowKeypad] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [pendingAction, setPendingAction] = useState<() => void>(() => {});
+
+  const { isPending, mutateAsync: setLimitMutateAsync } = useMutation({
+    mutationFn: (payload: { limitMinorUnits: number }) =>
+      instance.post(`${endpoints().cards.setLimit(cardId)}`, payload),
+    mutationKey: ["v-cards_limit"],
+    onSuccess: ({ data }) => {
+      router.push(`/settings?card=${cardId}`);
+      console.log(data);
+      const message = data.message;
+
+      toast.success(message);
+    },
+    onError: ({ response }: HttpError) => {
+      const { message } = response.data;
+      typeof message === "string"
+        ? toast.error(message)
+        : toast.error(message[0]);
+    },
+  });
 
   const openPinFor = (action: () => void) => {
     setPendingAction(() => action);
@@ -38,7 +79,11 @@ export default function SetTransactionLimit() {
     openPinFor(() => {
       console.log("Transaction limit set to:", formatCurrency(rawAmount));
       setShowKeypad(false);
-      router.push("/settings");
+      const payload = {
+        limitMinorUnits: Number(rawAmount),
+      };
+      setLimitMutateAsync(payload);
+      // router.push(`/settings?card=${cardId}`);
     });
   };
 
@@ -64,7 +109,7 @@ export default function SetTransactionLimit() {
           <span className="text-xs opacity-40">Current limit</span>
           <input
             onClick={() => setShowKeypad(true)}
-            value={formatCurrency(rawAmount)}
+            value={formatCurrency(rawAmount ?? 0)}
             className=" text-right bg-transparent outline-none font-semibold"
             style={{ caretColor: "white" }}
           />
@@ -79,6 +124,7 @@ export default function SetTransactionLimit() {
         }`}
       >
         <button
+          disabled={!rawAmount || isPending}
           onClick={() => handleSetLimit()}
           className=" w-[172px] h-[39px] bg-[#E15C42] ml-auto flex items-center justify-center rounded-lg text-center font-semibold text-white"
         >

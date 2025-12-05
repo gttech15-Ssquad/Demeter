@@ -17,11 +17,19 @@ import {
 } from "../icons/fix-color_type";
 import MyVirtualCard, { CardBackground } from "../cards/mycard";
 import ConfirmPinDialog from "../shared/confirmPin";
-import CardDetailsDrawer from "../cards/cardDetailsDrawer";
+import CardDetailsDrawer, { CardDetailsFull } from "../cards/cardDetailsDrawer";
 import { CardDetails } from "../cards/card-types";
 import { ToggleSelectItem } from "../shared/SelectToggle";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { instance } from "@/src/utils";
+import { endpoints } from "@/src/config/endpoints";
+import { MerchantSetting, MerchantSettingsResponse } from "@/src/types/user";
+import SpinnerOverlay from "../shared/spinner-overlay";
+import { toast } from "sonner";
+import { useUserStore } from "@/src/store/z-store/user";
 type VirtualCardScreenProps = {
   onNavigate: (screen: string) => void;
+  cardId: string;
 };
 
 export const cardBackgrounds: CardBackground[] = [
@@ -33,93 +41,111 @@ export const cardBackgrounds: CardBackground[] = [
   { type: "image", value: "/images/card1.png" },
 ];
 
-const mockCardDetails: CardDetails = {
-  cardNumber: "5594382937296482",
-  accountNumber: "0718259676",
-  expiryDate: "08/28",
-  cvv: "021",
-};
 export function MerchantManagementScreen({
   onNavigate,
+  cardId,
 }: VirtualCardScreenProps) {
-  const [activeTab, setActiveTab] = useState<"new" | "virtual">("new");
-  const [spotifyEnabled, setSpotifyEnabled] = useState(false);
-  const [netflixEnabled, setNetflixEnabled] = useState(true);
-  const [youtubeEnabled, setYoutubeEnabled] = useState(false);
-  const [amazonEnabled, setAmazonEnabled] = useState(false);
-
+  const { signOut, user } = useUserStore();
+  const queryClient = useQueryClient();
   const [showPin, setShowPin] = useState(false);
   const [pendingAction, setPendingAction] = useState<() => void>(() => {});
+  const {
+    data: settingsRes,
+    isFetching: isFetchingDetails,
+    isError,
+  } = useQuery({
+    queryFn: () =>
+      instance.get(`${endpoints().merchants.getCardSettings(cardId)}`),
+    queryKey: ["v-cards-merchant-details", cardId],
+  });
 
-  const openPinFor = (action: () => void) => {
+  // console.log(cardres);
+
+  const vCardMerchant = settingsRes?.data as
+    | MerchantSettingsResponse
+    | undefined;
+  const merchantSettings = vCardMerchant?.merchantSettings || [];
+
+  const {
+    data: cardres,
+    isFetching: isFetchingCardDetails,
+    refetch,
+  } = useQuery({
+    queryFn: () => instance.get(`${endpoints().cards.getFullDetails(cardId)}`),
+    queryKey: ["v-cards-details", cardId],
+  });
+
+  console.log(cardres);
+
+  const vCard = cardres?.data as CardDetailsFull | undefined;
+
+  const toggleMerchantMutation = useMutation({
+    mutationFn: ({
+      merchantId,
+      isEnabled,
+    }: {
+      merchantId: string;
+      isEnabled: boolean;
+    }) =>
+      instance.post(
+        `${endpoints().merchants.toggleSpecific(cardId, merchantId)}`
+      ),
+    onSuccess: (data, variables) => {
+      // Invalidate the query to refetch the updated list
+      queryClient.invalidateQueries({
+        queryKey: ["v-cards-merchant-details", cardId],
+      });
+      toast.success(
+        `${variables.isEnabled ? "Enabled" : "Disabled"} merchant successfully.`
+      );
+    },
+    onError: (error) => {
+      toast.error("Failed to update merchant status.");
+    },
+  });
+
+  // 3. Handler for the Toggle Action (wraps the mutation with PIN confirmation)
+  const handleToggle = (merchantId: string, currentStatus: boolean) => {
+    // The action to be performed AFTER PIN confirmation
+    const action = () => {
+      toggleMerchantMutation.mutate({ merchantId, isEnabled: !currentStatus });
+      setShowPin(false); // Close dialog after action is queued
+    };
+
+    // Set the action and open the PIN dialog
     setPendingAction(() => action);
     setShowPin(true);
   };
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isConfirmDrawerOpen, setIsConfirmDrawerOpen] = useState(false);
-  const features = [
-    { icon: FlashIcon, text: "Apply and activate instantly" },
-    { icon: CreditCardIcon, text: "Faster online payments" },
-    { icon: StoreIcon, text: "Works on all your favorite stores" },
-    { icon: LockIcon, text: "Heavily secure" },
-  ];
 
-  const handleTabClick = (tab: "new" | "virtual") => {
-    setActiveTab(tab);
-  };
+  // --- Render Logic ---
 
-  // if (activeTab === "new")
-  //   return (
-  //     <div className="flex-1 overflow-y-auto pb-2">
-  //       <div className=" w-full relative flex items-center justify-center px-5 py-3 ">
-  //         <div className="-mt-20 ml-12 ">
-  //           <Image
-  //             src="/images/createcard.png"
-  //             alt="Virtual Card Banner"
-  //             width={1000}
-  //             height={1000}
-  //           />
-  //         </div>
-  //       </div>
+  if (isFetchingDetails) {
+    return (
+      <div className="flex-1 flex items-center justify-center text-white bg-[#121212]">
+        <SpinnerOverlay />
+      </div>
+    );
+  }
 
-  //       {/* Card Display */}
+  if (isError || !vCardMerchant) {
+    return (
+      <div className="flex-1 p-5 text-red-500 bg-[#121212]">
+        Failed to load merchant settings.
+      </div>
+    );
+  }
 
-  //       <div className="relative px-8 ">
-  //         <div className="">
-  //           <h2 className="text-white text-3xl font-bold leading-auto mr-2 ">
-  //             Get your instant virtual debit card
-  //           </h2>
-
-  //           <ul className="list-none mt-4 p-0 m-0">
-  //             {features.map((feature, index) => (
-  //               <CardFeature
-  //                 key={index}
-  //                 Icon={feature.icon}
-  //                 text={feature.text}
-  //               />
-  //             ))}
-  //           </ul>
-
-  //           <button
-  //             onClick={() => setActiveTab("virtual")}
-  //             className="w-full py-2 cursor-pointer text-white text-md font-semibold rounded-md transition duration-200
-  //                  bg-red-500 hover:bg-red-600 "
-  //             style={{ backgroundColor: "#e5654a" }} // Applying the exact coral color
-  //           >
-  //             Create my virtual card
-  //           </button>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
+  // const [showPin, setShowPin] = useState(false);
+  // const [pendingAction, setPendingAction] = useState<() => void>(() => {});
 
   return (
     <div className="flex-1  overflow-x-hidden overflow-y-auto">
       {/* Card Display */}
       <div className="px-5 py-8">
         <MyVirtualCard
-          background={cardBackgrounds[0]}
-          cardHolder="Philip Toriola G "
+          background={cardBackgrounds[vCard?.designType || 0]}
+          cardHolder={`${user?.firstName} ${user?.middleName?.charAt(0) || ""} ${user?.lastName}`}
+          cardNumber={vCard?.cardNumberMasked}
         />
 
         <div className="text-sm font-medium flex justify-center text-white mt-5">
@@ -129,51 +155,14 @@ export function MerchantManagementScreen({
 
       {/* Card Actions */}
       <div className="px-2 mx-4 pt-4 text-gray-400">
-        {/* <div className="grid grid-cols-3  gap-4">
-          <div
-            onClick={() => openPinFor(() => setIsDrawerOpen(true))}
-            className="flex flex-col  items-center"
-          >
-            <CardDetailsIcon className="cursor-pointer" />
-            <span className="text-xs text-center">Card Details</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <CardSettingsIcon />
-            <span className="text-xs text-center">Card Settings</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <NewCardIcon />
-            <span className="text-xs text-center"> Create New Card</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <CardDesignIcon />
-            <span className="text-xs text-center">Change Card Design</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <CardMerchantIcon />
-            <span className="text-xs text-center">Manage Online Merchant</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <Link href={"/transactions?id=123456"}>
-              <CardTransactionsIcon />{" "}
-            </Link>
-            <span className="text-xs text-center">Transactions</span>
-          </div>
-        </div> */}
-
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <ToggleSelectItem
             iconSrc="/images/spotify.png"
             name="Spotify"
             description="Stream trending albums & songs, listen to podcasts & play the music you love."
             blocked
-            enabled={spotifyEnabled}
-            onToggle={setSpotifyEnabled}
+            enabled={true}
+            onToggle={}
             requireConfirmation
           />
           <ToggleSelectItem
@@ -181,8 +170,8 @@ export function MerchantManagementScreen({
             name="Spotify"
             description="Stream trending albums & songs, listen to podcasts & play the music you love. listen to podcasts & play the music you love."
             // blocked
-            enabled={netflixEnabled}
-            onToggle={setNetflixEnabled}
+            enabled={false}
+            onToggle={}
             requireConfirmation
           />
           <ToggleSelectItem
@@ -190,8 +179,8 @@ export function MerchantManagementScreen({
             name="Spotify"
             description="Stream trending albums & songs, listen to podcasts & play the music you love."
             // blocked
-            enabled={youtubeEnabled}
-            onToggle={setYoutubeEnabled}
+            enabled={true}
+            onToggle={}
             requireConfirmation
           />
 
@@ -200,18 +189,35 @@ export function MerchantManagementScreen({
             name="Spotify"
             description="Stream trending albums & songs, listen to podcasts & play the music you love. listen to podcasts & play the music you love."
             // blocked
-            enabled={amazonEnabled}
-            onToggle={setAmazonEnabled}
+            enabled={}
+            onToggle={}
             requireConfirmation
           />
+        </div> */}
+
+        <div className="space-y-4">
+          {merchantSettings.map((setting: MerchantSetting) => (
+            <ToggleSelectItem
+              key={setting.merchant.id}
+              // iconSrc={getIconSrc(setting.merchant.code)}
+              iconSrc="/images/spotify.png"
+              name={setting.merchant.name}
+              description={setting.merchant.description}
+              enabled={setting.isEnabled}
+              // Pass the toggle handler which is wrapped in PIN confirmation
+              onToggle={() =>
+                handleToggle(setting.merchant.id, setting.isEnabled)
+              }
+              requireConfirmation
+              blocked={!setting.isEnabled}
+
+              // // Optimistic update styling: Show spinner if this specific item is pending
+              // isPending={toggleMerchantMutation.isPending &&
+              //            (toggleMerchantMutation.variables as any)?.merchantId === setting.merchant.id}
+            />
+          ))}
         </div>
       </div>
-
-      {/* <ComfirmationDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        // details={mockCardDetails}
-      /> */}
 
       <ConfirmPinDialog
         isOpen={showPin}

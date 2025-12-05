@@ -212,7 +212,7 @@ export const ConfirmationDrawer: React.FC<ConfirmationDrawerProps> = ({
           </h3>
 
           <p className="text-gray-400 text-[14px] mb-8">{message}</p>
-          <Image
+          <img
             src={imageSrc}
             alt="confirmation illustration"
             width={240}

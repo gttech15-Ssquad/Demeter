@@ -32,7 +32,7 @@ export default function ManageCards() {
 
       {/* Tabs */}
       <div className="flex border-b border-gray-800 px-5">
-        <button
+        {/* <button
           className={`flex-1 py-3 text-sm font-medium relative ${
             activeTab === "virtual" ? "text-white" : "text-gray-500"
           }`}
@@ -42,8 +42,8 @@ export default function ManageCards() {
           {activeTab === "virtual" && (
             <div className="w-8 absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-[#E15C42] "></div>
           )}
-        </button>
-
+        </button> */}
+        {/* 
         <button
           className={`flex-1 py-3 text-sm font-medium relative ${
             activeTab === "physical" ? "text-white" : "text-gray-500"
@@ -54,7 +54,7 @@ export default function ManageCards() {
           {activeTab === "physical" && (
             <div className="w-8 absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-[#E15C42] "></div>
           )}
-        </button>
+        </button> */}
       </div>
 
       {activeTab === "virtual" ? (

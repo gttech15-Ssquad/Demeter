@@ -23,6 +23,7 @@ import {
   CreditCardIcon,
   LimitSettingsIcon,
 } from "../icons/fix-color_type";
+import { useUserStore } from "@/src/store/z-store/user";
 
 interface Props {
   refetch?: () => void;
@@ -35,12 +36,20 @@ interface Props {
 export const ProfileNav = ({ children, edit, refetch, onNavigate }: Props) => {
   const router = useRouter();
   const [openForm, setOpenForm] = useState(false);
+  const { signOut, user } = useUserStore();
+
+  const maskEmail = (email: string) => {
+    const [user, domain] = email.split("@");
+    const first = user.charAt(0);
+    const last4 = user.slice(-4);
+    return `${first}****${last4}@${domain}`;
+  };
 
   return (
     <div className="my-6 flex h-[90vh] w-full flex-col gap-6 overflow-y-scroll">
       <main className="px-5 pt-4 pb-2 space-y-6">
         <ArrowLeft onClick={() => onNavigate("home")} />
-        <Header name="Philip" tier="Tier 3" />
+        <Header name={user?.firstName ?? ""} tier="Tier 3" />
 
         <button className="border-[#E15C42] whitespace-nowrap  h-10 border bg-[#392223] rounded-4xl  px-4 flex  gap-2 items-center justify-center hover:border-orange-500 transition-colors">
           <UserAddIcon className="text-orange-500 " />
@@ -52,8 +61,8 @@ export const ProfileNav = ({ children, edit, refetch, onNavigate }: Props) => {
         <FXStatus message="At this moment, FX Sales is not available. FX rates and session status will appear as soon as it becomes accessible." />
         <SectionLabel label="Personal data" />
         <PersonalData
-          fullName="Philip Gbounmi Toriola"
-          phone="+234******2250"
+          fullName={user?.fullName ?? ""}
+          phone={`+234******${user?.phoneNumber.slice(-4)}`}
           email="P******2@GMAIL.COM"
         />
         <SectionLabel label="Card" />

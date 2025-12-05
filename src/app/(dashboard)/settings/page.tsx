@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeftIcon, User } from "lucide-react";
 import { StatusBar } from "@/src/components/dashboard/stutus-bar-props";
 import { HomeScreen } from "@/src/components/pages/homedash";
@@ -14,13 +14,34 @@ import {
 } from "@/src/components/pages/transaction-history";
 import TransactionSearch from "@/src/components/shared/SearchFilter";
 import { CardSettingsList } from "@/src/components/pages/card-settings-screen";
+import { useQuery } from "@tanstack/react-query";
+import { instance } from "@/src/utils";
+import { endpoints } from "@/src/config/endpoints";
+import { CardDetailsFull } from "@/src/components/cards/cardDetailsDrawer";
 
 export default function CardSettings() {
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+
+  const cardId = searchParams.get("card") || "";
+
   const [currentScreen, setCurrentScreen] = useState("card");
 
+  console.log(cardId);
+
   const [activeTab, setActiveTab] = useState<"virtual" | "physical">("virtual");
+
+  const {
+    data: cardres,
+    isFetching: isFetchingDetails,
+    refetch,
+  } = useQuery({
+    queryFn: () =>
+      instance.get(`${endpoints().cards.getFullDetails(cardId || "")}`),
+    queryKey: ["v-cards-details", cardId],
+  });
+  const vCard = cardres?.data as CardDetailsFull | undefined;
 
   return (
     <div className="flex-1 text-white overflow-y-auto pb-0">
@@ -38,74 +59,7 @@ export default function CardSettings() {
 
       <h2 className="px-5 text-2xl font-semibold">Card Settings</h2>
 
-      <CardSettingsList />
+      <CardSettingsList cardDetails={vCard} cardId={cardId} />
     </div>
   );
 }
-
-const trans = {
-  transactions_by_date: [
-    {
-      date: "November 13, 2025",
-      transactions: [
-        {
-          id: "12156912407",
-          description: "GT VirtuPay 12156912407",
-          type: "Card transaction",
-          amount_ngn: 6400.0,
-          source: "9676",
-        },
-        {
-          id: "12156786314",
-          description: "GT VirtuPay 12156786314",
-          type: "Card transaction",
-          amount_ngn: 1700.0,
-          source: "9676",
-        },
-      ],
-    },
-    {
-      date: "November 6, 2025",
-      transactions: [
-        {
-          id: "1204679543",
-          description: "GT VirtuPay 1204679543",
-          type: "Card transaction",
-          amount_ngn: 3900.0,
-          source: "9676",
-        },
-      ],
-    },
-    {
-      date: "October 25, 2025",
-      transactions: [
-        {
-          id: "12025785326",
-          description: "GT VirtuPay 12025785326",
-          type: "Card transaction",
-          amount_ngn: 11400.0,
-          source: "9676",
-        },
-        {
-          id: "12006334659",
-          description: "GT VirtuPay 12006334659",
-          type: "Card transaction",
-          amount_ngn: 1100.0,
-          source: "9676",
-        },
-      ],
-    },
-    {
-      date: "October 12, 2025",
-      transactions: [
-        {
-          id: "1204679543_2",
-          description: "GT VirtuPay 1204679543",
-          type: "Card transaction",
-          amount_ngn: 3900.0,
-          source: "9676",
-        },
-      ],
-    },
-  ],
-};

@@ -124,7 +124,7 @@ export const ToggleSelectItem: React.FC<ToggleSelectItemProps> = ({
     <div className="">
       <div className="flex items-center gap-4 bg-[#1E1F23] rounded-md border border-[#313139] justify-between w-full py-4 px-2">
         <div className="flex items-center gap-4">
-          <Image src={iconSrc} alt={name} width={40} height={40} />
+          <img src={iconSrc} alt={name} width={40} height={40} />
 
           <div className="flex justify-center flex-col">
             <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export const ToggleSelectItem: React.FC<ToggleSelectItemProps> = ({
           "
           checked={enabled}
           onCheckedChange={handleToggleClick}
-          disabled={blocked}
+          // disabled={blocked}
         />
       </div>
 
