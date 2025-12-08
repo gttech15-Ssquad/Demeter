@@ -101,7 +101,8 @@ export const ToggleSelectItem: React.FC<ToggleSelectItemProps> = ({
   const [pendingValue, setPendingValue] = useState<boolean>(false);
 
   const handleToggleClick = (newValue: boolean) => {
-    if (blocked) return; // Don't allow toggling if blocked
+    // if (blocked) return; // Don't allow toggling if blocked
+    // setShowConfirmation(true);
 
     if (requireConfirmation) {
       setPendingValue(newValue);
@@ -124,7 +125,13 @@ export const ToggleSelectItem: React.FC<ToggleSelectItemProps> = ({
     <div className="">
       <div className="flex items-center gap-4 bg-[#1E1F23] rounded-md border border-[#313139] justify-between w-full py-4 px-2">
         <div className="flex items-center gap-4">
-          <img src={iconSrc} alt={name} width={40} height={40} />
+          <img
+            src={iconSrc}
+            className="rounded-full"
+            alt={name}
+            width={40}
+            height={40}
+          />
 
           <div className="flex justify-center flex-col">
             <div className="flex items-center gap-2">
@@ -156,6 +163,7 @@ export const ToggleSelectItem: React.FC<ToggleSelectItemProps> = ({
             before:transition-transform
             data-[state=checked]:before:translate-x-[23px]
             **:data-[slot=switch-thumb]:hidden
+            
           "
           checked={enabled}
           onCheckedChange={handleToggleClick}
