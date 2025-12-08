@@ -177,46 +177,6 @@ export function MerchantManagementScreen({
 
       {/* Card Actions */}
       <div className="px-2 mx-4 pt-4 text-gray-400">
-        {/* <div className="space-y-4">
-          <ToggleSelectItem
-            iconSrc="/images/spotify.png"
-            name="Spotify"
-            description="Stream trending albums & songs, listen to podcasts & play the music you love."
-            blocked
-            enabled={true}
-            onToggle={}
-            requireConfirmation
-          />
-          <ToggleSelectItem
-            iconSrc="/images/spotify.png"
-            name="Spotify"
-            description="Stream trending albums & songs, listen to podcasts & play the music you love. listen to podcasts & play the music you love."
-            // blocked
-            enabled={false}
-            onToggle={}
-            requireConfirmation
-          />
-          <ToggleSelectItem
-            iconSrc="/images/spotify.png"
-            name="Spotify"
-            description="Stream trending albums & songs, listen to podcasts & play the music you love."
-            // blocked
-            enabled={true}
-            onToggle={}
-            requireConfirmation
-          />
-
-          <ToggleSelectItem
-            iconSrc="/images/spotify.png"
-            name="Spotify"
-            description="Stream trending albums & songs, listen to podcasts & play the music you love. listen to podcasts & play the music you love."
-            // blocked
-            enabled={}
-            onToggle={}
-            requireConfirmation
-          />
-        </div> */}
-
         <div className="space-y-4">
           {merchantSettings.map((setting: MerchantSetting) => (
             <ToggleSelectItem
