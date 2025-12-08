@@ -27,7 +27,6 @@ import { MerchantSetting, MerchantSettingsResponse } from "@/src/types/user";
 import SpinnerOverlay from "../shared/spinner-overlay";
 import { toast } from "sonner";
 import { useUserStore } from "@/src/store/z-store/user";
-import { merchantLogos } from "@/src/lib/data";
 type VirtualCardScreenProps = {
   onNavigate: (screen: string) => void;
   cardId: string;
@@ -60,11 +59,7 @@ export function MerchantManagementScreen({
     queryKey: ["v-cards-merchant-details", cardId],
   });
 
-  function getMerchantIcon(code?: string) {
-    return code
-      ? merchantLogos[code] || merchantLogos.DEFAULT
-      : merchantLogos.DEFAULT;
-  }
+  // console.log(cardres);
 
   const vCardMerchant = settingsRes?.data as
     | MerchantSettingsResponse
@@ -110,27 +105,10 @@ export function MerchantManagementScreen({
   });
 
   // 3. Handler for the Toggle Action (wraps the mutation with PIN confirmation)
-  // const handleToggle = (merchantId: string, currentStatus: boolean) => {
-  //   // The action to be performed AFTER PIN confirmation
-  //   const action = () => {
-  //     toggleMerchantMutation.mutate({ merchantId, isEnabled: !currentStatus });
-  //     setShowPin(false); // Close dialog after action is queued
-  //   };
-
-  //   // Set the action and open the PIN dialog
-  //   setPendingAction(() => action);
-  //   setShowPin(true);
-  // };
-
-  const handleToggle = (
-    merchantId: string,
-    // 💡 This is the *new desired state* (true/false), NOT the current status.
-    desiredStatus: boolean
-  ) => {
+  const handleToggle = (merchantId: string, currentStatus: boolean) => {
     // The action to be performed AFTER PIN confirmation
     const action = () => {
-      // 💡 Use desiredStatus directly in the mutation
-      toggleMerchantMutation.mutate({ merchantId, isEnabled: desiredStatus });
+      toggleMerchantMutation.mutate({ merchantId, isEnabled: !currentStatus });
       setShowPin(false); // Close dialog after action is queued
     };
 
@@ -222,17 +200,13 @@ export function MerchantManagementScreen({
             <ToggleSelectItem
               key={setting.merchant.id}
               // iconSrc={getIconSrc(setting.merchant.code)}
-              iconSrc={getMerchantIcon(setting.merchant.code)}
+              iconSrc="/images/spotify.png"
               name={setting.merchant.name}
               description={setting.merchant.description}
               enabled={setting.isEnabled}
               // Pass the toggle handler which is wrapped in PIN confirmation
-              // onToggle={() =>
-              //   handleToggle(setting.merchant.id, setting.isEnabled)
-              // }
-              onToggle={(newValue) =>
-                // Pass the merchant ID and the desired new state to the handler.
-                handleToggle(setting.merchant.id, newValue)
+              onToggle={() =>
+                handleToggle(setting.merchant.id, setting.isEnabled)
               }
               requireConfirmation
               blocked={!setting.isEnabled}
