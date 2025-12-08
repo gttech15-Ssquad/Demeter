@@ -101,9 +101,6 @@ export const ToggleSelectItem: React.FC<ToggleSelectItemProps> = ({
   const [pendingValue, setPendingValue] = useState<boolean>(false);
 
   const handleToggleClick = (newValue: boolean) => {
-    // if (blocked) return; // Don't allow toggling if blocked
-    // setShowConfirmation(true);
-
     if (requireConfirmation) {
       setPendingValue(newValue);
       setShowConfirmation(true);
