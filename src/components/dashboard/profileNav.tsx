@@ -105,10 +105,10 @@ export const ProfileNav = ({ children, edit, refetch, onNavigate }: Props) => {
         onBgClose={() => setShowLogoutConfirmation(false)}
         isOpen={showLogoutConfirmation}
         onClose={handleSignOutConfirm}
-        cancelText="Sign Out"
+        cancelText="Sign out"
         confirmText="Deactivate"
         onConfirm={handleDeactivateCancel}
-        title={`Are you sure?`}
+        title={`Are you sure ?`}
         message={`    Select sign out to end your current app session .   Select deactivate if you want to unlink your device or sign in with a different account.`}
         imageSrc="/images/areyousureimg.png"
       />
