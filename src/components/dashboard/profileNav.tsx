@@ -22,8 +22,10 @@ import {
   ChartUPIcon,
   CreditCardIcon,
   LimitSettingsIcon,
+  LogOutIcon,
 } from "../icons/fix-color_type";
 import { useUserStore } from "@/src/store/z-store/user";
+import { ConfirmationDrawer } from "../shared/confirmationDraawer";
 
 interface Props {
   refetch?: () => void;
@@ -36,7 +38,18 @@ interface Props {
 export const ProfileNav = ({ children, edit, refetch, onNavigate }: Props) => {
   const router = useRouter();
   const [openForm, setOpenForm] = useState(false);
-  const { signOut, user } = useUserStore();
+  const { signOut, deactivate, user } = useUserStore();
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
+
+  const handleSignOutConfirm = () => {
+    signOut();
+    router.push("/signin");
+  };
+
+  const handleDeactivateCancel = () => {
+    deactivate();
+    router.push("/signin");
+  };
 
   const maskEmail = (email: string) => {
     const [user, domain] = email.split("@");
@@ -80,7 +93,25 @@ export const ProfileNav = ({ children, edit, refetch, onNavigate }: Props) => {
           value="Limits"
           label="overview of transaction limits"
         />
+
+        <SectionLabel label=" " />
+        <DataItem
+          onClick={() => setShowLogoutConfirmation(!showLogoutConfirmation)}
+          Icon={LogOutIcon}
+          value="Log out"
+        />
       </main>
+      <ConfirmationDrawer
+        onBgClose={() => setShowLogoutConfirmation(false)}
+        isOpen={showLogoutConfirmation}
+        onClose={handleSignOutConfirm}
+        cancelText="Sign Out"
+        confirmText="Deactivate"
+        onConfirm={handleDeactivateCancel}
+        title={`Are you sure?`}
+        message={`    Select sign out to end your current app session .   Select deactivate if you want to unlink your device or sign in with a different account.`}
+        imageSrc="/images/areyousureimg.png"
+      />
     </div>
   );
 };

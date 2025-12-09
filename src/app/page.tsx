@@ -15,7 +15,7 @@ export default function Home() {
   const [currentScreen, setCurrentScreen] = useState("home");
 
   return (
-    <div className="w-full  text-white flex flex-col items-center justify-center">
+    <div className="w-full   text-white flex flex-col items-center justify-center">
       <div className="w-full  relative flex flex-col">
         {currentScreen === "home" && (
           <>

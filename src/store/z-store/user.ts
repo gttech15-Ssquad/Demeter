@@ -8,6 +8,7 @@ interface UserStore {
   isAuthenticated: boolean;
   signIn: (user: userProps) => void;
   signOut: () => void;
+  deactivate: () => void;
   expiresAt: number | null; // timestamp for expiry
   sessionTimer: ReturnType<typeof setTimeout> | null;
   handleSessionExpired: () => void;
@@ -18,13 +19,14 @@ const initialState: UserStore = {
   isAuthenticated: false,
   signIn: () => {},
   signOut: () => {},
+  deactivate: () => {},
   expiresAt: null,
   sessionTimer: null,
   handleSessionExpired: () => {},
 };
 
 export const useUserStore = createPersistMiddleware<UserStore>(
-  "needs-user",
+  "virtopay-user",
   (set, _get, _store) => ({
     ...initialState,
     signIn: (user) => {
@@ -47,7 +49,22 @@ export const useUserStore = createPersistMiddleware<UserStore>(
         expiresAt: null,
         sessionTimer: null,
       });
-      localStorage.removeItem("needs-user");
+      localStorage.removeItem("virtopay-user");
+      Cookie.remove("VIRTUPAY_USER_TOKEN");
+    },
+
+    deactivate: () => {
+      const { sessionTimer } = _get();
+      if (sessionTimer) clearTimeout(sessionTimer);
+
+      set({
+        user: null,
+        isAuthenticated: false,
+        expiresAt: null,
+        sessionTimer: null,
+      });
+      localStorage.removeItem("virtopay-user");
+      localStorage.removeItem("vw3dew32werwrdrtewrww33dfw");
       Cookie.remove("VIRTUPAY_USER_TOKEN");
     },
   })

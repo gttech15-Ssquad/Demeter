@@ -29,8 +29,9 @@ import { CardDetailsFull } from "../cards/cardDetailsDrawer";
 import { instance } from "@/src/utils";
 import { endpoints } from "@/src/config/endpoints";
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { HttpError } from "@/src/types/common";
+import { AccountProps } from "@/src/types/user";
 
 interface Props {
   refetch?: () => void;
