@@ -167,6 +167,7 @@ interface ConfirmationDrawerProps {
   imageSrc?: string;
   confirmText?: string;
   cancelText?: string;
+  onBgClose?: () => void;
 }
 
 // Confirmation Drawer Component
@@ -174,6 +175,7 @@ export const ConfirmationDrawer: React.FC<ConfirmationDrawerProps> = ({
   isOpen,
   onClose,
   onConfirm,
+  onBgClose,
   title = "Are you sure?",
   message = "Please confirm your action",
   imageSrc = "/images/areyousureimg.png",
@@ -192,7 +194,11 @@ export const ConfirmationDrawer: React.FC<ConfirmationDrawerProps> = ({
 
   return (
     <>
-      <div className={backdropClass} onClick={onClose} aria-hidden={true} />
+      <div
+        className={backdropClass}
+        onClick={onBgClose || onClose}
+        aria-hidden={true}
+      />
       <div
         className={drawerClass}
         role="dialog"
@@ -223,13 +229,13 @@ export const ConfirmationDrawer: React.FC<ConfirmationDrawerProps> = ({
           <div className="flex h-10 gap-3">
             <button
               onClick={onConfirm}
-              className="flex-1  px-4 bg-[#1A1A1A]  text-white rounded-sm font-medium transition-colors"
+              className="flex-1 cursor-pointer  px-4 bg-[#1A1A1A]  text-white rounded-sm font-medium transition-colors"
             >
               {confirmText}
             </button>
             <button
               onClick={onClose}
-              className="flex-1  px-4 bg-[#E15C42] text-white rounded-sm font-medium transition-colors"
+              className="flex-1 cursor-pointer  px-4 bg-[#E15C42] text-white rounded-sm font-medium transition-colors"
             >
               {cancelText}
             </button>

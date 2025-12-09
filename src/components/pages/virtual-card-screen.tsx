@@ -33,7 +33,7 @@ import { AxiosInterceptorManager } from "axios";
 import { HttpError } from "@/src/types/common";
 import { toast } from "sonner";
 import CreatePinDialog from "../shared/createPin";
-import { Card, CardListResponse } from "@/src/types/user";
+import { AccountProps, Card, CardListResponse } from "@/src/types/user";
 import {
   Carousel,
   CarouselContent,
@@ -264,6 +264,13 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
     );
   }
 
+  const { data: dashaccount, isFetching: isFetchingAcct } = useQuery({
+    queryFn: () => instance.get(`${endpoints().accounts.getBalance}`),
+    queryKey: ["useraccount"],
+  });
+
+  const dashAccount = dashaccount?.data as AccountProps;
+
   return (
     <div className="flex-1  overflow-x-hidden overflow-y-auto">
       {/* <div className="px-5 py-8">
@@ -457,6 +464,7 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         // details={mockCardDetails}
+        accountNumber={dashAccount.accountNumber ?? " "}
         cardId={selectedCard?.id || ""}
       />
     </div>
