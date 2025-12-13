@@ -78,8 +78,11 @@ const CardDetailsDrawer: React.FC<CardDetailsDrawerProps> = ({
         {/* Details List (max-height adjusted if needed, but relative max-h should work) */}
         <div className="overflow-y-auto mr-2 max-h-[calc(80vh-100px)]">
           {/* ... CardDetailItem components here ... */}
-          <CardDetailItem value={accountNumber} label="Card number" />
-          <CardDetailItem value={String(1234567)} label="Account number" />
+          <CardDetailItem
+            value={vCard?.cardNumber || "**** **** **** ****"}
+            label="Card number"
+          />
+          <CardDetailItem value={accountNumber} label="Account number" />
           <CardDetailItem
             value={`${vCard?.expiryMonth}/${String(vCard?.expiryYear).slice(-2)} `}
             label="Expiry date"

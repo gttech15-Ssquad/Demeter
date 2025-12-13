@@ -91,8 +91,8 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
               {" "}
               <span className="text-sm mt-4 ">N</span>{" "}
               <span className="text-3xl flex justify-center items-center font-bold">
-                {formatWithoutCurrency(dashAccount.balanceMinorUnits)}
-                {formatfordecimal(dashAccount.balanceMinorUnits)}
+                {formatWithoutCurrency(dashAccount?.balanceMinorUnits)}
+                {formatfordecimal(dashAccount?.balanceMinorUnits)}
               </span>
             </div>
           ) : (

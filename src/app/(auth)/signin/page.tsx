@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { endpoints } from "@/src/config/endpoints";
 import { userProps } from "@/src/types/user";
 import { HttpError } from "@/src/types/common";
+import SpinnerOverlay from "@/src/components/shared/spinner-overlay";
 
 export default function PinSignIn() {
   const router = useRouter();
@@ -100,6 +101,10 @@ export default function PinSignIn() {
         }}
       />
     );
+  }
+
+  if (isPending) {
+    return <SpinnerOverlay />;
   }
 
   return (
@@ -221,7 +226,7 @@ export const PhoneNumberBlock: FC<PhoneNumberBlockProps> = ({
         type="tel"
         value={phoneNumber}
         onChange={(e) => setPhoneNumber(e.target.value)}
-        placeholder="08012345678"
+        placeholder="xxxxxxxxxxx"
         className="w-full bg-[#2a2a2a] text-white p-4 rounded-lg text-center 
         tracking-widest text-lg outline-none border border-[#333]
         focus:border-[#E5654A] transition"

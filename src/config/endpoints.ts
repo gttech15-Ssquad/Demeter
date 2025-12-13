@@ -69,7 +69,7 @@ export const endpoints = (query?: string) => {
     // GET /api/Transactions/card/{cardId}
     getHistory: (cardId: string) => `${baseUrl}/Transactions/card/${cardId}`,
     // POST /api/Transactions
-    createNew: `${baseUrl}/Transactions`,
+    createNew: (cardId: string) => `${baseUrl}/Transactions/card/${cardId}`,
     // GET /api/Transactions/{transactionId}
     getDetails: (transactionId: string) =>
       `${baseUrl}/Transactions/${transactionId}`,

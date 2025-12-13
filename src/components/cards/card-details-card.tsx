@@ -1,6 +1,7 @@
 // components/CardDetailItem.tsx
 import React from "react";
 import { CopyIcon } from "../icons/pack_1";
+import { toast } from "sonner";
 
 interface CardDetailItemProps {
   label?: string; // Optional label for fields like 'Account number'
@@ -11,7 +12,7 @@ const CardDetailItem: React.FC<CardDetailItemProps> = ({ label, value }) => {
   // Simple copy function (can be integrated with a state notification system)
   const handleCopy = () => {
     navigator.clipboard.writeText(value);
-    
+    toast.info("Copied to clipboard");
   };
 
   const showCopyIcon = !label || label.toLowerCase().includes("number"); // Show copy icon only for card/account numbers
