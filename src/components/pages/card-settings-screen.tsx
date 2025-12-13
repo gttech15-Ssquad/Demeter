@@ -141,11 +141,11 @@ export const CardSettingsList = ({
           label="set the transaction limits"
         />
 
-        <DataItem
+        {/* <DataItem
           Icon={LimitSettingsIcon}
           value="Manage card PIN"
           label="change your card PIN"
-        />
+        /> */}
         <DataItem
           onClick={() => setShowFreezeConfirmation(true)}
           Icon={LimitSettingsIcon}

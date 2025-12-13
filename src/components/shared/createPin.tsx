@@ -63,7 +63,7 @@ export default function CreatePinDialog({
                 setConfirmPin("");
               } else {
                 setError(true);
-                toast.error("Passwords do not match");
+                toast.error("Pin do not match");
                 setPin("");
                 setConfirmStage(false);
                 setConfirmPin("");

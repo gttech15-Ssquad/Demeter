@@ -77,6 +77,8 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
   const [api, setApi] = useState<any | null>(null);
   // const [cards, setCards] = useState<Card[]>([]);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const MINIMUM_LOADING_TIME_MS = 1000;
+  const [loading, setLoading] = useState(false);
 
   // const [api, setApi] = useState(null);
 
@@ -128,6 +130,13 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
 
   const vCards = cardres?.data as CardListResponse | undefined;
   const cards = vCards?.cards || [];
+
+  const { data: dashaccount, isFetching: isFetchingAcct } = useQuery({
+    queryFn: () => instance.get(`${endpoints().accounts.getBalance}`),
+    queryKey: ["useraccount"],
+  });
+
+  const dashAccount = dashaccount?.data as AccountProps;
 
   // useEffect(() => {
   //   if (cardres?.data) {
@@ -187,7 +196,21 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
     setActiveTab(tab);
   };
 
-  if (isFetchingCards) {
+  useEffect(() => {
+    console.log(`Starting ${MINIMUM_LOADING_TIME_MS / 1000}s minimum timer...`);
+
+    const minTimeTimeout = setTimeout(() => {
+      // Minimum time has elapsed
+      setLoading(false);
+      console.log("Minimum time elapsed (3s).");
+    }, MINIMUM_LOADING_TIME_MS);
+
+    // Cleanup function for minimum time timer
+    // This is crucial to prevent memory leaks if the component unmounts
+    return () => clearTimeout(minTimeTimeout);
+  }, []);
+
+  if (isFetchingCards || loading) {
     return (
       <div className="p-5 text-white">
         <SpinnerOverlay />
@@ -264,13 +287,6 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
     );
   }
 
-  const { data: dashaccount, isFetching: isFetchingAcct } = useQuery({
-    queryFn: () => instance.get(`${endpoints().accounts.getBalance}`),
-    queryKey: ["useraccount"],
-  });
-
-  const dashAccount = dashaccount?.data as AccountProps;
-
   return (
     <div className="flex-1  overflow-x-hidden overflow-y-auto">
       {/* <div className="px-5 py-8">
@@ -306,39 +322,6 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
             ))}
           </CarouselContent>
         </Carousel>
-
-        // <Carousel
-        //   opts={{ loop: false, align: "start" }}
-        //   setApi={(api) => {
-        //     if (!api) return;
-        //     api.on("select", () => {
-        //       setActiveIndex(api.selectedScrollSnap());
-        //     });
-        //   }}
-        // >
-        //   <CarouselContent>
-        //     {cards.map((card, index) => (
-        //       <CarouselItem key={card.id}>
-        //         <div className="px-5 py-8">
-        //           <MyVirtualCard
-        //             background={cardBackgrounds[card.designType ?? 2]}
-        //             cardHolder={`${user?.firstName} ${user?.middleName?.charAt(0)} ${user?.lastName}`}
-        //             cardNumber={card.cardNumberMasked}
-        //             // expiry={card.expiry}
-        //           />
-
-        //           <div className="text-sm font-medium flex justify-center text-white mt-5">
-        //             {index === activeIndex
-        //               ? "My main virtual card"
-        //               : "Virtual card"}
-        //           </div>
-        //         </div>
-        //       </CarouselItem>
-        //     ))}
-        //   </CarouselContent>
-        //   <CarouselPrevious />
-        //   <CarouselNext />
-        // </Carousel>
       )}
 
       <div>
@@ -371,7 +354,7 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
         )}
 
         <div className="text-sm font-medium flex justify-center text-white -mt-5">
-          My main virtual card {selectedCard?.designType}
+          My virtual card
         </div>
       </div>
       {cards[activeIndex].isFrozen && (
@@ -405,7 +388,10 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
 
           {/* <Link href="/settings">
            */}
-          <Link href={`/settings?card=${cards[activeIndex]?.id}`}>
+          <Link
+            onClick={() => setLoading(true)}
+            href={`/settings?card=${cards[activeIndex]?.id}`}
+          >
             <div className="flex flex-col items-center">
               <CardSettingsIcon />
               <span className="text-xs text-center">Card Settings</span>
@@ -415,7 +401,11 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
           <div className="flex flex-col items-center">
             <NewCardIcon
               className="cursor-pointer"
-              onClick={() => setActiveTab("create")}
+              onClick={() => {
+                cards.length === 3
+                  ? toast.error("Max Cards Reached (3/3)")
+                  : setActiveTab("create");
+              }}
             />
             <span className="text-xs text-center"> Create New Card</span>
           </div>
@@ -431,7 +421,10 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
             <span className="text-xs text-center">Change Card Design</span>
           </div>
 
-          <Link href={`/merchant?card=${cards[activeIndex]?.id}`}>
+          <Link
+            onClick={() => setLoading(true)}
+            href={`/merchant?card=${cards[activeIndex]?.id}`}
+          >
             <div className="flex flex-col items-center">
               <CardMerchantIcon />
               <span className="text-xs text-center">
@@ -441,7 +434,10 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
           </Link>
 
           <div className="flex flex-col items-center">
-            <Link href={`/transactions?card=${cards[activeIndex]?.id}`}>
+            <Link
+              onClick={() => setLoading(true)}
+              href={`/transactions?card=${cards[activeIndex]?.id}`}
+            >
               <CardTransactionsIcon />{" "}
             </Link>
             <span className="text-xs text-center">Transactions</span>
@@ -464,7 +460,7 @@ export function VirtualCardScreen({ onNavigate }: VirtualCardScreenProps) {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         // details={mockCardDetails}
-        accountNumber={dashAccount.accountNumber ?? " "}
+        accountNumber={dashAccount?.accountNumber ?? " "}
         cardId={selectedCard?.id || ""}
       />
     </div>
