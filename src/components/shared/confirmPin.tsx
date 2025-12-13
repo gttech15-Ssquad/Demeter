@@ -63,7 +63,7 @@ export default function ConfirmPinDialog({
                 i < pin.length
                   ? error
                     ? "bg-red-500"
-                    : "bg-white"
+                    : "bg-[#E15C42]"
                   : "bg-gray-600"
               }`}
             />

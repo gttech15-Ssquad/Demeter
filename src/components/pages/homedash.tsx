@@ -57,7 +57,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   return (
     <div className="flex-1 relative overflow-y-auto px-5 pb-16">
       {/* Header */}
-      <div className="flex flex-col sticky top-0 items-center mt-2 mb-6">
+      <div className="flex flex-col sticky top-0 items-center mt-4 mb-6">
         <div className="flex w-full flex-col">
           <div className="flex items-center gap-2">
             <ProfileIcon
@@ -66,7 +66,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
             />
 
             <span className="text-sm font-medium">
-              Hello, {user?.firstName}!
+              Hello, {user?.firstName} !
             </span>
           </div>
 
@@ -91,8 +91,8 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
               {" "}
               <span className="text-sm mt-4 ">N</span>{" "}
               <span className="text-3xl flex justify-center items-center font-bold">
-                {formatWithoutCurrency(dashAccount.balanceMinorUnits)}
-                {formatfordecimal(dashAccount.balanceMinorUnits)}
+                {formatWithoutCurrency(dashAccount?.balanceMinorUnits)}
+                {formatfordecimal(dashAccount?.balanceMinorUnits)}
               </span>
             </div>
           ) : (

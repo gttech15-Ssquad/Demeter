@@ -23,10 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} bg-[#1A1A1A] antialiased mx-auto w-[393px] h-screen overflow-hidden overflow-y-scroll`}
+        className={`${inter.variable} bg-[#1A1A1A] antialiased my-0 mx-auto w-full md:w-[393px] h-screen overflow-hidden overflow-y-scroll`}
       >
         <QueryProvider>
-          <div className="flex  flex-col bg-[#1A1A1A]">
+          <div className="flex flex-col bg-[#1A1A1A]">
             <StatusBar />
             {children}
           </div>
